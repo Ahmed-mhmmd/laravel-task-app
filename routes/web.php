@@ -4,6 +4,8 @@ use Carbon\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 
+use function Laravel\Prompts\table;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -31,4 +33,13 @@ Route::post(uri: '/about', action: function(): Factory|View{
         '3' => 'Sales',
     ];
     return view(view: 'about', data: compact(var_name: 'name'));
+});
+
+Route::get(uri: 'tasks', action: function(): Factory|View{
+    return view('tasks');
+});
+Route::post(uri:'create', action: function(): string{
+    $task_name = $_POST['name'];
+    DB::table(table: 'tasks')->insert(values: ['name' => $task_name]);
+    return view('tasks');
 });
