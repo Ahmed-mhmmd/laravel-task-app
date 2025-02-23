@@ -23,7 +23,7 @@
 <body id="app-layout">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/tasks">
                 Task List
             </a>
         </div>
@@ -31,29 +31,44 @@
 
     <div class="container mt-4">
         <div class="offset-md-2 col-md-8">
+            <!-- Task Form (Add or Edit) -->
             <div class="card">
-                <div class="card-header">
-                    New Task
+    <div class="card-header">
+        <!-- Conditionally set header based on editTask presence -->
+        {{ isset($editTask) ? 'Edit Task' : 'New Task' }}
+    </div>
+    <div class="card-body">
+        <!-- Edit form if $editTask exists -->
+        @if (isset($editTask))
+            <form action="/update/{{ $editTask->id }}" method="POST">
+                @csrf
+                <div class="mb-3">
+                    <label for="task-name" class="form-label">Task</label>
+                    <input type="text" name="name" id="task-name" class="form-control" value="{{ $editTask->name }}" required>
                 </div>
-                <div class="card-body">
-                    <!-- New Task Form -->
-                    <form action="create" method="POST">
-                        @csrf
-                        <!-- Task Name -->
-                        <div class="mb-3">
-                            <label for="task-name" class="form-label">Task</label>
-                            <input type="text" name="name" id="task-name" class="form-control" value="">
-                        </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fa fa-save me-2"></i>
+                    Update Task
+                </button>
+                <a href="/tasks" class="btn btn-secondary">Cancel</a>
+            </form>
+        @else
+            <!-- Add form if no task is being edited -->
+            <form action="/create" method="POST">
+                @csrf
+                <div class="mb-3">
+                    <label for="task-name" class="form-label">Task</label>
+                    <input type="text" name="name" id="task-name" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-plus me-2"></i>
+                    Add Task
+                </button>
+            </form>
+        @endif
+    </div>
+</div>
 
-                        <!-- Add Task Button -->
-                        <div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-plus me-2"></i>Add Task
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
 
             <!-- Current Tasks -->
             <div class="card mt-4">
@@ -69,36 +84,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Task 1</td>
-                                <td>
-                                    <form action="#" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-trash me-2"></i>Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Task 2</td>
-                                <td>
-                                    <form action="#" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-trash me-2"></i>Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Task 3</td>
-                                <td>
-                                    <form action="#" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-trash me-2"></i>Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
+                            @foreach ($tasks as $task)
+                                <tr>
+                                    <td>{{ $task->name }}</td>
+                                    <td>
+                                        <!-- Edit Button -->
+                                        <a href="/tasks/edit/{{ $task->id }}" class="btn btn-warning">
+                                            <i class="fa fa-edit me-2"></i>Edit
+                                        </a>
+
+                                        <!-- Delete Form -->
+                                        <form action="/delete/{{ $task->id }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa fa-trash me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -110,3 +114,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
