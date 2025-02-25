@@ -57,15 +57,6 @@ Route::post('/about', function (): Factory|View {
     return view('about', compact('name', 'departments'));
 });
 
-// Route::get(uri: 'tasks', action: function(): Factory|View{
-//     return view('tasks');
-// });
-// Route::post(uri:'create', action: function(): string{
-//     $task_name = $_POST['name'];
-//     DB::table(table: 'tasks')->insert(values: ['name' => $task_name]);
-//     return view('tasks');
-// });
-
 
 // Display Tasks
 Route::get('/tasks', function (Request $request) {
@@ -107,5 +98,55 @@ Route::post('/update/{id}', function (Request $request, $id) {
 // Delete Task
 Route::post('/delete/{id}', function ($id) {
     DB::table('tasks')->where('id', $id)->delete();
+    return redirect()->back();
+});
+
+
+// Display Users
+Route::get('/users', function (Request $request) {
+    $users = DB::table('users')->get();
+    $editUser = null;
+
+    if ($request->has('edit')) {
+        $editUser = DB::table('users')->where('id', $request->query('edit'))->first();
+    }
+
+    return view('users', compact('users', 'editUser'));
+});
+
+// Create User
+Route::post('/create', function (Request $request) {
+    DB::table('users')->insert([
+        'name' => $request->input('name'),
+        'email' => $request->input('email'),
+        'password' => $request->input('password'),
+    ]);
+
+    return redirect()->back();
+});
+
+// Edit User (Redirects to the edit form)
+Route::get('/users/edit/{id}', function ($id) {
+    return redirect('/users?edit=' . $id);
+});
+
+// Update User
+Route::post('/update/{id}', function (Request $request, $id) {
+    $updateData = [
+        'name' => $request->input('name'),
+        'email' => $request->input('email'),
+    ];
+
+    if ($request->filled('password')) { // Update password only if provided
+        $updateData['password'] = $request->input('password');
+    }
+
+    DB::table('users')->where('id', $id)->update($updateData);
+    return redirect('/users')->with('success', 'User updated successfully!');
+});
+
+// Delete User
+Route::post('/delete/{id}', function ($id) {
+    DB::table('users')->where('id', $id)->delete();
     return redirect()->back();
 });
